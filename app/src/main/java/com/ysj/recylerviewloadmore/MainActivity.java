@@ -6,6 +6,7 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -29,6 +30,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        setupActionBar();
 
         refreshLayout = (SwipeRefreshLayout) findViewById(R.id.refresh_layout);
         recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
@@ -54,6 +57,11 @@ public class MainActivity extends AppCompatActivity {
                 loadData();
             }
         }, 2000);
+    }
+
+    private void setupActionBar() {
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
     }
 
     private void setListeners(final LinearLayoutManager layoutManager) {
