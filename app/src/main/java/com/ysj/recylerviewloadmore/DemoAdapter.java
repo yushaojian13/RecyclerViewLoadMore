@@ -7,24 +7,39 @@ import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.ysj.log.L;
+
 import java.util.List;
 
 /**
  * Created by Yu Shaojian on 2015 10 08.
  */
 public class DemoAdapter extends RecyclerView.Adapter {
-    private static final int VIEW_ITEM = 0;
-    private static final int VIEW_PROGRESS = 1;
+    public static final int VIEW_ITEM = 0;
+    public static final int VIEW_PROGRESS = 1;
+    public static final int VIEW_LOAD_MORE = 2;
+
+    private int lastPositionViewType = VIEW_ITEM;
 
     private List<String> data;
+
+    private OnLoadMoreClickListener loadMoreClickListener;
+
+    public void setOnLoadMoreClickListener(OnLoadMoreClickListener loadMoreClickListener) {
+        this.loadMoreClickListener = loadMoreClickListener;
+    }
 
     public void setData(List<String> data) {
         this.data = data;
     }
 
+    public void setLastPositionViewType(int type) {
+        lastPositionViewType = type;
+    }
+
     @Override
     public int getItemViewType(int position) {
-        return data.get(position) != null ? VIEW_ITEM : VIEW_PROGRESS;
+        return data.get(position) != null ? VIEW_ITEM : lastPositionViewType;
     }
 
     @Override
@@ -34,12 +49,14 @@ public class DemoAdapter extends RecyclerView.Adapter {
         if (viewType == VIEW_ITEM) {
             View v = LayoutInflater.from(parent.getContext()).inflate(
                     R.layout.list_item, parent, false);
-
             vh = new ItemViewHolder(v);
+        } else if (viewType == VIEW_LOAD_MORE) {
+            View v = LayoutInflater.from(parent.getContext()).inflate(
+                    R.layout.list_load_more, parent, false);
+            vh = new LoadMoreViewHolder(v);
         } else {
             View v = LayoutInflater.from(parent.getContext()).inflate(
                     R.layout.list_progress, parent, false);
-
             vh = new ProgressViewHolder(v);
         }
 
@@ -51,7 +68,15 @@ public class DemoAdapter extends RecyclerView.Adapter {
         if (holder instanceof ItemViewHolder) {
             ItemViewHolder itemViewHolder = (ItemViewHolder) holder;
             itemViewHolder.itemTV.setText(data.get(position));
-        } else {
+        } else if (holder instanceof LoadMoreViewHolder) {
+            holder.itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (loadMoreClickListener != null) {
+                        loadMoreClickListener.onClick();
+                    }
+                }
+            });
         }
     }
 
@@ -76,5 +101,23 @@ public class DemoAdapter extends RecyclerView.Adapter {
             super(v);
             progressBar = (ProgressBar) v.findViewById(R.id.progress_bar);
         }
+    }
+
+    public static class LoadMoreViewHolder extends RecyclerView.ViewHolder {
+        public LoadMoreViewHolder(View v) {
+            super(v);
+
+            v.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    L.d("getAdapterPosition = " + getAdapterPosition());
+                    L.d("getLayoutPosition = " + getLayoutPosition());
+                }
+            });
+        }
+    }
+
+    public interface OnLoadMoreClickListener {
+        void onClick();
     }
 }
